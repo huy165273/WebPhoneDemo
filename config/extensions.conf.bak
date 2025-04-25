@@ -1,0 +1,3 @@
+[default]
+exten => _65XX,1,Dial(PJSIP/${EXTEN})
+
