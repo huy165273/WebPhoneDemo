@@ -1,8 +1,0 @@
-[general]
-dateformat=%F %T
-queue_log = no
-queue_adaptive_realtime=yes
-
-[logfiles]
-console => notice,warning,error,debug   ; event
-messages => notice,warning,error
