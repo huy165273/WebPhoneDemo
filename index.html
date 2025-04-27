@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebRTC Phone</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="libs/jssip.min.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Sidebar: Danh sách liên hệ -->
+        <aside class="sidebar">
+            <h2>Contacts</h2>
+            <ul id="contactList">
+                <!-- Danh sách liên hệ sẽ được thêm động -->
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header>
+                <h1>WebRTC Phone</h1>
+                <p>Status: <span id="status" class="disconnected">Disconnected</span></p>
+            </header>
+
+            <!-- Dialpad -->
+            <section id="dialpad">
+                <input id="sipTarget" type="text" placeholder="Enter SIP URI or Number">
+                <div class="actions">
+                    <button class="call" onclick="startCall()">Call</button>
+                    <button class="hangup" onclick="hangupCall()">Hangup</button>
+                </div>
+            </section>
+
+            <!-- Incoming Call Notification -->
+            <section id="incomingCall" style="display: none;">
+                <p>Incoming call from <span id="incomingNumber"></span></p>
+                <button onclick="acceptCall()">Accept</button>
+                <button onclick="rejectCall()">Reject</button>
+            </section>
+
+            <!-- Lịch sử cuộc gọi -->
+            <section id="callHistory">
+                <h2>Call History</h2>
+                <ul id="historyList">
+                    <!-- Lịch sử cuộc gọi sẽ được thêm động -->
+                </ul>
+            </section>
+
+            <!-- Record Controls -->
+            <section id="recordControls">
+                <button id="startRecording" onclick="startRecording()">Start Recording</button>
+                <button id="stopRecording" onclick="stopRecording()" disabled>Stop Recording</button>
+            </section>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
