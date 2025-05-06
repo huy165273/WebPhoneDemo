@@ -1,7 +1,7 @@
-const socket = new JsSIP.WebSocketInterface('wss://192.168.100.30:8443/ws');
+const socket = new JsSIP.WebSocketInterface('wss://34.133.184.106:8443/ws');
 const configuration = {
     sockets: [socket],
-    uri: 'sip:6502@192.168.100.30',
+    uri: 'sip:6504@34.133.184.106',
     password: '123456',
     session_timers: false,
     stun_servers: ['stun:stun.l.google.com:19302']
@@ -70,6 +70,21 @@ ua.on('newRTCSession', (data) => {
             currentSession = null;
         });
 
+        currentSession.connection?.addEventListener('track', (e) => {
+            if (!e.streams || e.streams.length === 0) {
+                console.error('No streams available for the track event');
+                return;
+            }
+
+            const audio = document.createElement('audio');
+            audio.srcObject = e.streams[0];
+            audio.autoplay = true;
+            document.body.appendChild(audio);
+
+            // Bắt đầu ghi âm sau khi track âm thanh được thêm
+            startRecording();
+        });
+
         startRecording(); // Bắt đầu ghi âm khi nhận cuộc gọi
     }
 });
@@ -102,14 +117,20 @@ function startCall() {
         currentSession = null;
     });
 
-    currentSession.connection.addEventListener('track', (e) => {
+    currentSession.connection?.addEventListener('track', (e) => {
+        if (!e.streams || e.streams.length === 0) {
+            console.error('No streams available for the track event');
+            return;
+        }
+
         const audio = document.createElement('audio');
         audio.srcObject = e.streams[0];
         audio.autoplay = true;
         document.body.appendChild(audio);
-    });
 
-    startRecording(); // Tự động bắt đầu ghi âm khi bắt đầu cuộc gọi
+        // Bắt đầu ghi âm sau khi track âm thanh được thêm
+        startRecording();
+    });
 }
 
 // Chấp nhận cuộc gọi
@@ -117,18 +138,36 @@ function acceptCall() {
     if (currentSession) {
         currentSession.answer({ mediaConstraints: { audio: true } });
 
-        currentSession.connection.addEventListener('track', (e) => {
+        currentSession.connection?.addEventListener('track', (e) => {
+            if (!e.streams || e.streams.length === 0) {
+                console.error('No streams available for the track event');
+                return;
+            }
+
             const audio = document.createElement('audio');
             audio.srcObject = e.streams[0];
             audio.autoplay = true;
             document.body.appendChild(audio);
+
+            // Bắt đầu ghi âm sau khi track âm thanh được thêm
+            startRecording();
         });
 
         document.getElementById('incomingCall').style.display = 'none';
         addCallToHistory(document.getElementById('incomingNumber').textContent, 'Incoming');
         console.log('Call accepted');
 
-        startRecording(); // Tự động bắt đầu ghi âm khi chấp nhận cuộc gọi
+        currentSession.on('ended', () => {
+            stopRecording();
+            console.log('Call ended');
+            currentSession = null;
+        });
+
+        currentSession.on('failed', () => {
+            stopRecording();
+            console.log('Call failed');
+            currentSession = null;
+        });
     }
 }
 
@@ -144,9 +183,16 @@ function rejectCall() {
 
 // Ghi âm cuộc gọi
 function startRecording() {
-    if (currentSession) {
+    if (currentSession && currentSession.connection) {
         const stream = new MediaStream();
-        currentSession.connection.getReceivers().forEach((receiver) => {
+        const receivers = currentSession.connection.getReceivers();
+
+        if (!receivers || receivers.length === 0) {
+            console.error('No receivers found for recording');
+            return;
+        }
+
+        receivers.forEach((receiver) => {
             if (receiver.track && receiver.track.kind === 'audio') {
                 stream.addTrack(receiver.track);
             }
@@ -161,10 +207,8 @@ function startRecording() {
         mediaRecorder.ondataavailable = (e) => recordedChunks.push(e.data);
         mediaRecorder.start();
         console.log('Recording started');
-
-        // Kích hoạt nút Stop Recording, vô hiệu hóa nút Start Recording
-        document.getElementById('startRecording').disabled = true;
-        document.getElementById('stopRecording').disabled = false;
+    } else {
+        console.error('No active session or connection for recording');
     }
 }
 
@@ -197,18 +241,17 @@ function stopRecording() {
 
             console.log('Recording saved:', url);
             recordedChunks = [];
-
-            // Kích hoạt nút Start Recording, vô hiệu hóa nút Stop Recording
-            document.getElementById('startRecording').disabled = false;
-            document.getElementById('stopRecording').disabled = true;
         };
     }
 }
 
+// Kết thúc cuộc gọi
 function hangupCall() {
     if (currentSession) {
+        stopRecording(); // Dừng ghi âm khi kết thúc cuộc gọi
         currentSession.terminate();
         currentSession = null;
+        console.log('Call terminated');
     }
 }
 
