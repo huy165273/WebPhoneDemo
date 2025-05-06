@@ -11,7 +11,7 @@ const ua = new JsSIP.UA(configuration);
 let currentSession = null;
 let mediaRecorder = null;
 let recordedChunks = [];
-const contacts = {}; // Lưu thông tin liên hệ và lịch sử cuộc gọi
+const contacts = {};
 const historyList = document.getElementById('historyList');
 const contactList = document.getElementById('contactList');
 
@@ -47,26 +47,26 @@ ua.on('newRTCSession', (data) => {
         document.getElementById('incomingNumber').textContent = caller;
         document.getElementById('incomingCall').style.display = 'block';
 
-        // Thêm vào danh sách liên hệ nếu chưa có
+
         if (!contacts[caller]) {
             contacts[caller] = [];
             const li = document.createElement('li');
             li.textContent = caller;
-            li.onclick = () => showCallHistory(caller); // Hiển thị lịch sử cuộc gọi khi nhấn vào số
+            li.onclick = () => showCallHistory(caller);
             contactList.appendChild(li);
         }
 
         currentSession.on('ended', () => {
             document.getElementById('incomingCall').style.display = 'none';
             console.log('Call ended');
-            stopRecording(); // Dừng ghi âm khi kết thúc cuộc gọi
+            stopRecording();
             currentSession = null;
         });
 
         currentSession.on('failed', () => {
             document.getElementById('incomingCall').style.display = 'none';
             console.log('Call failed');
-            stopRecording(); // Dừng ghi âm nếu cuộc gọi thất bại
+            stopRecording();
             currentSession = null;
         });
 
