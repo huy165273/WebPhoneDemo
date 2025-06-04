@@ -1,13 +1,14 @@
-const socket = new JsSIP.WebSocketInterface('wss://34.133.184.106:8443/ws');
+const socket = new JsSIP.WebSocketInterface('ws://34.142.226.84:8088/ws');
 const configuration = {
     sockets: [socket],
-    uri: 'sip:6504@34.133.184.106',
+    uri: 'sip:7501@34.142.226.84',
     password: '123456',
+    registrar_server: 'sip:34.142.226.84',
     session_timers: false,
     stun_servers: ['stun:stun.l.google.com:19302']
 };
-
 const ua = new JsSIP.UA(configuration);
+
 let currentSession = null;
 let mediaRecorder = null;
 let recordedChunks = [];
