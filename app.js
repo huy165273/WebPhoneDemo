@@ -1,7 +1,7 @@
-const socket = new JsSIP.WebSocketInterface('wss://34.142.226.84:8089/ws');
+const socket = new JsSIP.WebSocketInterface('wss://34.142.211.58:8089/ws');
 const configuration = {
     sockets: [socket],
-    uri: 'sip:7501@34.142.226.84',
+    uri: 'sip:7501@34.142.211.58',
     password: '123456',
     // registrar_server: 'sip:34.142.226.84',
     session_timers: false,
